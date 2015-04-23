@@ -71,6 +71,7 @@ jsctags(file, dir, content, function (e, tags) {
  * [replace_bogus_prop](examples/replace_bogus_prop.md)
  * [simple_generic](examples/simple_generic.md)
  * [simple](examples/simple.md)
+ * [amdjs](examples/amdjs.md)
 
 
 ## license
