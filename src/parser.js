@@ -65,14 +65,18 @@ var type = function (type, define) {
   return type
 }
 
-var addr = function (span, file) {
-  var pos = span.match(/^(\d*?)\[\d*?\:\d*?\]-(\d*?)\[\d*?\:\d*?\]$/)
-  var end = pos.pop()
-  var start = pos.pop()
-  
-  var blob = file.slice(start, end)
-  return new RegExp(blob.split(/\n/).shift().replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&'))
-}
+var getFnName = function (span, file) {
+      var pos = span.match(/^(\d*?)\[\d*?\:\d*?\]-(\d*?)\[\d*?\:\d*?\]$/)
+      var end = pos.pop()
+      var start = pos.pop()
+
+      var blob = file.slice(start, end).split(/\r?\n/).shift();
+      var name = blob.replace(/^\s*function\s*([^\(]+)\s*\(.*\)\s*\{\s*$/, function ($0, $1) {
+          return $1;
+      });
+
+      return name;
+};
 
 var lineno = function (span) {
   return Number(span.match(/^\d*?\[(\d*?)\:\d*?\]-\d*?\[\d*?\:\d*?\]$/).pop()) + 1
@@ -95,9 +99,11 @@ var tagger = function (file, condense, tags, types, parent, root) {
 
     if(!_span || !_type) return 0
 
+    name = require('path').isAbsolute(name) ? getFnName(_span, file) : name;
+
     var tag = {
       name: name,
-      addr: addr(_span, file).toString(),
+      addr: '/' + name + '/',
       kind: kind(_type),
       type: type(_type, define),
       lineno: lineno(_span)
