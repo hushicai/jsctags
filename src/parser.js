@@ -65,17 +65,18 @@ var type = function (type, define) {
   return type
 }
 
-var getFnName = function (span, file) {
-      var pos = span.match(/^(\d*?)\[\d*?\:\d*?\]-(\d*?)\[\d*?\:\d*?\]$/)
-      var end = pos.pop()
-      var start = pos.pop()
+var getName = function (span, file) {
+    var pos = span.match(/^(\d*?)\[\d*?\:\d*?\]-(\d*?)\[\d*?\:\d*?\]$/)
+    var end = pos.pop()
+    var start = pos.pop()
 
-      var blob = file.slice(start, end).split(/\r?\n/).shift();
-      var name = blob.replace(/^\s*function\s*([^\(]+)\s*\(.*\)\s*\{\s*$/, function ($0, $1) {
-          return $1;
-      });
+    var blob = file.slice(start, end).split(/\r?\n/).shift();
+    var fnDefination = /^function\s*(.+)\s*\(.*\)\s*\{\s*(.*\})?\s*$/;
+    var name = blob.replace(fnDefination, function ($0, $1) {
+        return $1;
+    });
 
-      return name;
+    return name || "Anonymous";
 };
 
 var lineno = function (span) {
@@ -99,7 +100,8 @@ var tagger = function (file, condense, tags, types, parent, root) {
 
     if(!_span || !_type) return 0
 
-    name = require('path').isAbsolute(name) ? getFnName(_span, file) : name;
+    // handle file path
+    name = require('path').isAbsolute(name) ? getName(_span, file) : name;
 
     var tag = {
       name: name,
