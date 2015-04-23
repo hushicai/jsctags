@@ -71,10 +71,13 @@ var getName = function (span, file) {
     var start = pos.pop()
 
     var blob = file.slice(start, end).split(/\r?\n/).shift();
-    var fnDefination = /^function\s*(.+)\s*\(.*\)\s*\{\s*(.*\})?\s*$/;
-    var name = blob.replace(fnDefination, function ($0, $1) {
-        return $1;
-    });
+    var fnDefination = /^function\s*([^\s\(]+)\s*\(.*\)\s*\{\s*(.*\})?\s*$/;
+    var name;
+    if (fnDefination.test(blob)) {
+        name = blob.replace(fnDefination, function ($0, $1) {
+            return $1;
+        });
+    }
 
     return name || "Anonymous";
 };
