@@ -1,12 +1,13 @@
 var interpolate = require('util').format,
     condense = require('./condenser')
 
+
 module.exports = function (file, dir, content, callback) {
   condense(dir, file, content, function (e, condense) {
     if(e) throw e
     var types = {}
     var tags = []
-    
+
     parse(content, condense, tags, types)
     tags = tags.sort(function (tag1, tag2) { return tag1.lineno - tag2.lineno })
     callback(null, tags)
@@ -81,16 +82,16 @@ var tagger = function (file, condense, tags, types, parent, root) {
   var define = root['!define'] || {}
 
   return function (name) {
-    if(typeof condense !== 'object' || name.match(/^\!/)) return 0
-    var _type = condense['!type']
-    var _span = condense['!span']
+    if(typeof condense !== 'object') return 0
 
     Object.keys(condense).forEach(function (key) {
-      if(key.match(/^\!/)) return 0
       var p = parent.slice()
       p.push(name)
       tagger(file, condense[key], tags, types, p, root)(key)
     })
+
+    var _type = condense['!type']
+    var _span = condense['!span']
 
     if(!_span || !_type) return 0
 
@@ -103,7 +104,7 @@ var tagger = function (file, condense, tags, types, parent, root) {
     }
     
     if(parent.length) tag.namespace = parent.join('.')
-    
+
     return tags.push(tag)
   }
 }

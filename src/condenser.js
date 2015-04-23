@@ -12,7 +12,7 @@ var config = function (dir) {
   }, "{}")
   
   return merge(JSON.parse(config), {
-    libs: ['browser', 'ecma5'],
+    libs: ['ecma5'],
     loadEagerly: false,
     plugins: {
       doc_comment: true
@@ -33,8 +33,8 @@ var defs = function (libs) {
 }
 
 var server = function (config, dir) {
-  var base = path.resolve(__dirname, '../node_modules/tern/defs')
-  
+  var base = path.resolve(__dirname, '../node_modules/tern/plugin')
+
   Object.keys(config.plugins).forEach(function (plugin) {
     var file = path.join(base, interpolate('%s.js', plugin))
     if(fs.existsSync(file)) return require(file)
