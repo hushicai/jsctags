@@ -74,6 +74,8 @@ var getBlob = function (span, file) {
 
 var addr = function (span, file) {
     var blob = getBlob(span, file);
+    // ctags use pattern to locate the tag
+    // so need to add `^` and `$`
     return '/^' + blob.replace(/[\-\[\]\/\(\)\*\+\?\.\\\^\$\|]/g, '\\$&') + '$/';
 }
 
