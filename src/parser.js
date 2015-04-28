@@ -65,12 +65,20 @@ var type = function (type, define) {
   return type
 }
 
-var getName = function (span, file) {
-    var pos = span.match(/^(\d*?)\[\d*?\:\d*?\]-(\d*?)\[\d*?\:\d*?\]$/)
-    var end = pos.pop()
-    var start = pos.pop()
+var getBlob = function (span, file) {
+  var pos = span.match(/^(\d*?)\[\d*?\:\d*?\]-(\d*?)\[\d*?\:\d*?\]$/)
+  var end = pos.pop()
+  var start = pos.pop()
+  return file.slice(start, end).split(/\n/).shift();
+};
 
-    var blob = file.slice(start, end).split(/\r?\n/).shift();
+var addr = function (span, file) {
+    var blob = getBlob(span, file);
+    return '/^' + blob.replace(/[\-\[\]\/\(\)\*\+\?\.\\\^\$\|]/g, '\\$&') + '$/';
+}
+
+var getName = function (span, file) {
+    var blob = getBlob(span, file);
     var fnDefination = /^function\s*([^\s\(]+)\s*\(.*\)\s*\{\s*(.*\})?\s*$/;
     var name;
     if (fnDefination.test(blob)) {
@@ -108,10 +116,10 @@ var tagger = function (file, condense, tags, types, parent, root) {
 
     var tag = {
       name: name,
-      addr: '/' + name + '/',
+      addr: addr(_span, file),
       kind: kind(_type),
       type: type(_type, define),
-      lineno: lineno(_span)
+      line: lineno(_span)
     }
     
     if(parent.length) tag.namespace = parent.join('.')
